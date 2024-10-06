@@ -190,6 +190,30 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	TotalTrack->Branch("ntpclayer",&ntpclayer);	
 	TotalTrack->Branch("poormvtxclus",&poormvtxclus);	
 	TotalTrack->Branch("poorinttclus",&poorinttclus);	
+	TotalTrack->Branch("trackpt",&trackpt);	
+	TotalTrack->Branch("tracketa",&tracketa);	
+	TotalTrack->Branch("trackphi",&trackphi);	
+	TotalTrack->Branch("trackpx",&trackpx);	
+	TotalTrack->Branch("trackpy",&trackpy);	
+	TotalTrack->Branch("trackpz",&trackpz);	
+	TotalTrack->Branch("trackq",&trackq);	
+
+
+	TotalTrack->Branch("tpcseedpt",&tpcseedpt);	
+	TotalTrack->Branch("tpcseedeta",&tpcseedeta);	
+	TotalTrack->Branch("tpcseedphi",&tpcseedphi);	
+	TotalTrack->Branch("tpcseedpx",&tpcseedpx);	
+	TotalTrack->Branch("tpcseedpy",&tpcseedpy);	
+	TotalTrack->Branch("tpcseedpz",&tpcseedpz);	
+	TotalTrack->Branch("tpcseedq",&tpcseedq);	
+
+	TotalTrack->Branch("siseedpt",&siseedpt);	
+	TotalTrack->Branch("siseedeta",&siseedeta);	
+	TotalTrack->Branch("siseedphi",&siseedphi);	
+	TotalTrack->Branch("siseedpx",&siseedpx);	
+	TotalTrack->Branch("siseedpy",&siseedpy);	
+	TotalTrack->Branch("siseedpz",&siseedpz);	
+	TotalTrack->Branch("siseedq",&siseedq);	
 
 
 

@@ -169,17 +169,17 @@ class MvtxHitEff : public SubsysReco
   float tpcseedpx;
   float tpcseedpy;
   float tpcseedpz;
-  float tpcq;
+  float tpcseedq;
 
 
-  float sipt;
-  float sieta;
-  float siphi;
+  float siseedpt;
+  float siseedeta;
+  float siseedphi;
 
-  float sipx;
-  float sipy;
-  float sipz;
-  float siq;
+  float siseedpx;
+  float siseedpy;
+  float siseedpz;
+  float siseedq;
 
 
 
