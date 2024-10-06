@@ -66,7 +66,7 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	std::cout << "Debugging -> Bettere Info" << std::endl;
 	std::cout << "Reject TPC Info -> Test Again" << std::endl;
 	std::cout << "Fixed and Remove Extra Print Out" << std::endl;
-	std::cout << "Use Total Track" << std::endl;
+	std::cout << "Use Total Track Write" << std::endl;
 
 	fout = new TFile("MVTXEffAna.root","RECREATE");
 	fout->cd();
@@ -76,6 +76,35 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	MissingChip->Branch("TrackletID",&TrackletID);	
 	MissingChip->Branch("chisq",&chisq);	
 	MissingChip->Branch("ndf",&ndf);	
+	MissingChip->Branch("trackpt",&trackpt);	
+	MissingChip->Branch("tracketa",&tracketa);	
+	MissingChip->Branch("trackphi",&trackphi);	
+	MissingChip->Branch("trackpx",&trackpx);	
+	MissingChip->Branch("trackpy",&trackpy);	
+	MissingChip->Branch("trackpz",&trackpz);	
+	MissingChip->Branch("trackq",&trackq);	
+
+
+	MissingChip->Branch("tpcseedpt",&tpcseedpt);	
+	MissingChip->Branch("tpcseedeta",&tpcseedeta);	
+	MissingChip->Branch("tpcseedphi",&tpcseedphi);	
+	MissingChip->Branch("tpcseedpx",&tpcseedpx);	
+	MissingChip->Branch("tpcseedpy",&tpcseedpy);	
+	MissingChip->Branch("tpcseedpz",&tpcseedpz);	
+	MissingChip->Branch("tpcseedq",&tpcseedq);	
+
+	MissingChip->Branch("siseedpt",&siseedpt);	
+	MissingChip->Branch("siseedeta",&siseedeta);	
+	MissingChip->Branch("siseedphi",&siseedphi);	
+	MissingChip->Branch("siseedpx",&siseedpx);	
+	MissingChip->Branch("siseedpy",&siseedpy);	
+	MissingChip->Branch("siseedpz",&siseedpz);	
+	MissingChip->Branch("siseedq",&siseedq);	
+
+
+
+	//Missing Info//
+
 
 	MissingChip->Branch("layerindex",&layerindex);
 	MissingChip->Branch("staveindex",&staveindex);
@@ -106,6 +135,9 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	MissingChip->Branch("ntpclayer",&ntpclayer);	
 	MissingChip->Branch("poormvtxclus",&poormvtxclus);	
 	MissingChip->Branch("poorinttclus",&poorinttclus);	
+
+
+
 
 
 	TotalChip = new TTree("TotalChip","TotalChip");
@@ -167,8 +199,8 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 
 	SiSeedAna->Branch("TotalClus",&TotalClus);
 	SiSeedAna->Branch("TotalClusAssoc",&TotalClusAssoc);
-	SiSeedAna->Branch("SiSeedEta",&SiSeedEta);
-	SiSeedAna->Branch("SiSeedPt",&SiSeedPt);
+	SiSeedAna->Branch("siseedeta",&siseedeta);
+	SiSeedAna->Branch("siseedpt",&siseedpt);
 
 	SiSeedAna->Branch("nmaps",&nmaps);
 	SiSeedAna->Branch("nintt",&nintt);
@@ -395,6 +427,19 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		ndf = track->get_ndf();
 		quality = track->get_quality();
 
+		trackpt =  track->get_pt();
+		tracketa =  track->get_eta();
+		trackphi =  track->get_phi();
+		trackpx =  track->get_px();
+		trackpy =  track->get_py();
+		trackpz =  track->get_pz();
+		trackq =  track->get_charge();
+		trackx = track->get_x();
+		tracky = track->get_y();
+		trackz = track->get_z();
+
+
+
 		vtxId = track->get_vertex_id();
 
 
@@ -443,10 +488,15 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 		}
 
-		SiSeedPt = siseed->get_pt();
-		SiSeedEta = siseed->get_eta();
 		Crossing = siseed->get_crossing();
 
+		siseedpt = siseed->get_pt();
+		siseedeta = siseed->get_eta();
+		siseedphi = siseed->get_phi();
+		siseedpx = siseed->get_px();
+		siseedpy = siseed->get_py();
+		siseedpz = siseed->get_pz();
+		siseedq = siseed->get_charge();
 
 
 		//if(Crossing != 0 || SiSeedPt < 0.5) continue;  //Apply Cuts
@@ -647,7 +697,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		}
 	
 
-		std::cout << "Now Looping TPC stuffs" << std::endl;
+		//std::cout << "Now Looping TPC stuffs" << std::endl;
 
 
 		//TPC Seed Loop
@@ -671,6 +721,15 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		tpcx = tpcseed->get_x();
 		tpcy = tpcseed->get_y();
 		tpcz = tpcseed->get_z();
+
+		tpcseedpt =  tpcseed->get_pt();
+		tpcseedeta =  tpcseed->get_eta();
+		tpcseedphi =  tpcseed->get_phi();
+		tpcseedpx =  tpcseed->get_px();
+		tpcseedpy =  tpcseed->get_py();
+		tpcseedpz =  tpcseed->get_pz();
+		tpcseedq =  tpcseed->get_charge();
+
 
 		for (TrackSeed::ClusterKeyIter tpccluskey = tpccluskeybegin; tpccluskey != tpccluskeyend; ++tpccluskey){ //looping through silicon clusters
 
@@ -781,7 +840,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		if(missinglayer != -1) MissingOneLayer = true;
 
 		//	MissingOneLayer = false;
-		std::cout << "Missing layer here: " << MissingOneLayer << std::endl;
+	//	std::cout << "Missing layer here: " << MissingOneLayer << std::endl;
 		if(MissingOneLayer)
 		{
 			TwoClusTracklets++;
@@ -873,6 +932,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 		}
 
+		TotalTrack->Fill();
 
 
 
@@ -944,6 +1004,7 @@ int MvtxHitEff::EndRun()
 int MvtxHitEff::End(PHCompositeNode * /*unused*/) { 
 
 	fout->cd();
+	TotalTrack->Write();
 
 	TotalChip->Write();
 	MissingChip->Write();
