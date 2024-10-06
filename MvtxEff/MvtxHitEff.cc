@@ -64,6 +64,8 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	std::cout << "Declared -> OK" << std::endl;
 	std::cout << "Add More Quality Info for Further Selections -> Also Added TPC Seed within the Matched Tracks" << std::endl;
 	std::cout << "Debugging -> Bettere Info" << std::endl;
+	std::cout << "Reject TPC Info -> Test Again" << std::endl;
+	std::cout << "Fixed and Remove Extra Print Out" << std::endl;
 
 	fout = new TFile("MissingChip.root","RECREATE");
 	fout->cd();
@@ -353,14 +355,14 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 	std::cout << "_trackmap->size() = " << _trackmap->size() << std::endl;
 	for (auto& iter : *_trackmap)
 	{   
-		std::cout << "Now Pass -7" << std::endl;
+
 		
 		//Seed loop
 		//cout << itrack << " of " << _trackmap->size();
 		SvtxTrack* track = iter.second;
 
 		if(!track) continue;
-		std::cout << "Now Pass -6" << std::endl;
+
 
 		//cout << " : SvtxTrack: -> New" << endl;
 		ClusKeyVec.clear();
@@ -378,7 +380,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		//std::cout << "OK -> Before Pass 2" << "   Vertex Id - " << vtxId << std::endl;
 
 
-		std::cout << "Now Pass -5" << std::endl;
+
 		
 
 
@@ -405,7 +407,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 		TotalClusAssoc = 0;
 
-		std::cout << "Now Pass -4" << std::endl;
+
 
 		if(!siseed){
 
@@ -421,11 +423,12 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		SiSeedEta = siseed->get_eta();
 		Crossing = siseed->get_crossing();
 
-		std::cout << "Now Pass -3" << std::endl;
 
-		if(Crossing != 0 || SiSeedPt < 0.5) continue;  //Apply Cuts
+
+		//if(Crossing != 0 || SiSeedPt < 0.5) continue;  //Apply Cuts
 		
-
+		if(Crossing != 0) continue;  
+		
 		TrackletID = track->get_id();
 
 		//std::cout << "TotalTracklets = " << TotalTracklets << std::endl;
@@ -438,7 +441,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		nmaps = 0;
 		nintt = 0;
 
-		std::cout << "Now Pass -2" << std::endl;
+
 
 
 		int missinglayer = -1;
@@ -459,7 +462,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		siy = siseed->get_y();
 		siz = siseed->get_z();
 
-		std::cout << "Now Pass -1.5" << std::endl;
+
 
 		//bool goodclussize = true;
 		//int SeedswithOverlapClus = 0;
@@ -467,7 +470,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		std::vector<int> mvtxlaycount;
 		std::vector<int> inttlaycount;
 		std::vector<int> tpclaycount;
-		std::cout << "Now Pass -1" << std::endl;
+
 
 		//std::cout << "Si - Pass 1" << std::endl;
 
@@ -481,7 +484,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 			//		float x = siseed->get_x();
 			//		float y = siseed->get_y();
 
-			std::cout << "Now Pass -0.8" << std::endl;
+
 
 			if (TrkrDefs::getTrkrId(*cluskey) == TrkrDefs::mvtxId || TrkrDefs::getTrkrId(*cluskey) == TrkrDefs::inttId){
 
@@ -518,7 +521,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 				//	ClusIdVec.push_back(*cluskey);
 
 			}
-			std::cout << "Now Pass -0.5" << std::endl;
+
 
 		//	std::cout << "Si - Pass 2" << std::endl;
 
@@ -573,7 +576,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 				//std::cout << "x = " << x << "  y = " << y << std::endl;
 			}
-			std::cout << "Now Pass -0.2" << std::endl;
+
 
 
 	//		std::cout << "Si - Pass 3" << std::endl;
@@ -585,7 +588,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 			}
 
-			std::cout << "Now Pass -0.1" << std::endl;
+
 
 
 
@@ -622,6 +625,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 		std::cout << "Now Looping TPC stuffs" << std::endl;
 
+
 		//TPC Seed Loop
 
 		TrackSeed* tpcseed = track->get_tpc_seed();		
@@ -632,12 +636,12 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 			std::cout << "No TPC Seed" << std::endl;
 			continue;
 		}
-		std::cout << "Now Pass 2" << std::endl;
+
 
 
 		TrackSeed::ClusterKeyIter tpccluskeybegin = tpcseed->begin_cluster_keys();
 		TrackSeed::ClusterKeyIter tpccluskeyend = tpcseed->end_cluster_keys();
-		std::cout << "Now Pass 3" << std::endl;
+
 
 
 		tpcx = tpcseed->get_x();
@@ -657,8 +661,9 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 		}
 
-		std::cout << "Now Pass 4" << std::endl;
+
 		
+
 
 
 		//Count MVTX, INTT, and TPC Unique Layers//
@@ -668,27 +673,26 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		nmapslayer = std::distance(mvtxlaycount.begin(), mvtxuniq);
 
 		std::sort(inttlaycount.begin(), inttlaycount.end());
-		auto inttuniq = std::unique(mvtxlaycount.begin(), inttlaycount.end());
+		auto inttuniq = std::unique(inttlaycount.begin(), inttlaycount.end());
 		ninttlayer = std::distance(inttlaycount.begin(), inttuniq);
 
 		std::sort(tpclaycount.begin(), tpclaycount.end());
 		auto tpcuniq = std::unique(tpclaycount.begin(), tpclaycount.end());
 		ntpclayer = std::distance(tpclaycount.begin(), tpcuniq);
 
-		std::cout << "Now Pass 5" << std::endl;
+
 		
 
 		//	std::cout << "nmaps = " << nmaps << "   TotalTracklet = " <<  TotalTracklets << std::endl;
 		NHitStat->Fill(nmaps);
 
-		std::cout << "Now Pass 5.5" << std::endl;
+
 
 		//if(!goodclussize) continue;
 		//if(quality > 100) continue;
 
 
 
-		std::cout << "Now Pass 6" << std::endl;
 
 
 	//	if(nmaps== 2 && nintt == 2){
@@ -709,7 +713,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 		}
 
-		std::cout << "Now Pass 7" << std::endl;
+
 //		if(nmaps > 1 && nintt == 2){
 		CylinderGeom_Mvtx* layergeom = NULL;
 	
@@ -743,7 +747,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 		}
 
-		std::cout << "Now Pass 8" << std::endl;
+
 
 
 		bool MissingOneLayer = false;
