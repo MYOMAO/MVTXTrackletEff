@@ -66,8 +66,9 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	std::cout << "Debugging -> Bettere Info" << std::endl;
 	std::cout << "Reject TPC Info -> Test Again" << std::endl;
 	std::cout << "Fixed and Remove Extra Print Out" << std::endl;
+	std::cout << "Use Total Track" << std::endl;
 
-	fout = new TFile("MissingChip.root","RECREATE");
+	fout = new TFile("MVTXEffAna.root","RECREATE");
 	fout->cd();
 	Event = 0;
 	MissingChip = new TTree("MissingChip","MissingChip");
@@ -134,6 +135,29 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	TotalChip->Branch("ntpclayer",&ntpclayer);	
 	TotalChip->Branch("poormvtxclus",&poormvtxclus);	
 	TotalChip->Branch("poorinttclus",&poorinttclus);	
+
+
+
+
+	TotalTrack = new TTree("TotalTrack","TotalTrack");
+	TotalTrack->Branch("Event",&Event);	
+	TotalTrack->Branch("TrackletID",&TrackletID);	
+	TotalTrack->Branch("chisq",&chisq);	
+	TotalTrack->Branch("ndf",&ndf);	
+	TotalTrack->Branch("six",&six);
+	TotalTrack->Branch("siy",&siy);
+	TotalTrack->Branch("siz",&siz);
+	TotalTrack->Branch("tpcx",&tpcx);
+	TotalTrack->Branch("tpcy",&tpcy);
+	TotalTrack->Branch("tpcz",&tpcz);
+	TotalTrack->Branch("nmaps",&nmaps);	
+	TotalTrack->Branch("nintt",&nintt);	
+	TotalTrack->Branch("ntpc",&ntpc);	
+	TotalTrack->Branch("nmapslayer",&nmapslayer);	
+	TotalTrack->Branch("ninttlayer",&ninttlayer);	
+	TotalTrack->Branch("ntpclayer",&ntpclayer);	
+	TotalTrack->Branch("poormvtxclus",&poormvtxclus);	
+	TotalTrack->Branch("poorinttclus",&poorinttclus);	
 
 
 
