@@ -51,7 +51,7 @@
 #include "TH1D.h"
 #include "TCanvas.h"
 #include "TStyle.h"
-
+TotalTrack->Scan(
 
 
 #include <limits>
@@ -67,6 +67,9 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	std::cout << "Reject TPC Info -> Test Again" << std::endl;
 	std::cout << "Fixed and Remove Extra Print Out" << std::endl;
 	std::cout << "Use Total Track Write" << std::endl;
+	std::cout << "Additional Info + Silicon Surface Protection" << std::endl;
+	std::cout << "Include TPC Clusters for Demo -> Propered -> Uodated" << std::endl;
+	std::cout << "Improve Missing" << std::endl;
 
 	fout = new TFile("MVTXEffAna.root","RECREATE");
 	fout->cd();
@@ -100,11 +103,12 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	MissingChip->Branch("siseedpy",&siseedpy);	
 	MissingChip->Branch("siseedpz",&siseedpz);	
 	MissingChip->Branch("siseedq",&siseedq);	
-
+	MissingChip->Branch("CosTheta",&CosTheta);	
 
 
 	//Missing Info//
 
+	MissingChip->Branch("surfacegood",&surfacegood);	
 
 	MissingChip->Branch("layerindex",&layerindex);
 	MissingChip->Branch("staveindex",&staveindex);
@@ -113,6 +117,7 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	MissingChip->Branch("chipphi",&chipphi);
 	MissingChip->Branch("chipz",&chipz);
 
+	
 	MissingChip->Branch("x",&x_miss);
 	MissingChip->Branch("y",&y_miss);
 	MissingChip->Branch("z",&z_miss);
@@ -136,6 +141,11 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	MissingChip->Branch("poormvtxclus",&poormvtxclus);	
 	MissingChip->Branch("poorinttclus",&poorinttclus);	
 
+	//Clus Info
+	MissingChip->Branch("TotalClusSize",&TotalClusSize);
+	MissingChip->Branch("ClusPosX",&ClusPosX);
+	MissingChip->Branch("ClusPosY",&ClusPosY);
+	MissingChip->Branch("ClusPosZ",&ClusPosZ);
 
 
 
@@ -168,6 +178,8 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	TotalChip->Branch("poormvtxclus",&poormvtxclus);	
 	TotalChip->Branch("poorinttclus",&poorinttclus);	
 
+	//Enable Clusters
+
 
 
 
@@ -198,7 +210,6 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	TotalTrack->Branch("trackpz",&trackpz);	
 	TotalTrack->Branch("trackq",&trackq);	
 
-
 	TotalTrack->Branch("tpcseedpt",&tpcseedpt);	
 	TotalTrack->Branch("tpcseedeta",&tpcseedeta);	
 	TotalTrack->Branch("tpcseedphi",&tpcseedphi);	
@@ -214,7 +225,15 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	TotalTrack->Branch("siseedpy",&siseedpy);	
 	TotalTrack->Branch("siseedpz",&siseedpz);	
 	TotalTrack->Branch("siseedq",&siseedq);	
+	TotalTrack->Branch("CosTheta",&CosTheta);	
 
+
+
+	//Clus Info
+	TotalTrack->Branch("TotalClusSize",&TotalClusSize);
+	TotalTrack->Branch("ClusPosX",&ClusPosX);
+	TotalTrack->Branch("ClusPosY",&ClusPosY);
+	TotalTrack->Branch("ClusPosZ",&ClusPosZ);
 
 
 	SiSeedAna = new TTree("SiSeedAna","SiSeedAna");
@@ -308,6 +327,24 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	SiClusHits->GetYaxis()->SetTitle("y (cm)");
 	SiClusHits->GetXaxis()->CenterTitle();
 	SiClusHits->GetYaxis()->CenterTitle();
+
+
+
+	FullClusHits = new TH2D("ClusHits","",200,-80,80,200,-80,80);
+	FullClusHits->SetMarkerStyle(20);
+	FullClusHits->SetMarkerColor(kRed);
+	FullClusHits->GetXaxis()->SetTitle("x (cm)");
+	FullClusHits->GetYaxis()->SetTitle("y (cm)");
+	FullClusHits->GetXaxis()->CenterTitle();
+	FullClusHits->GetYaxis()->CenterTitle();
+
+	MissingClusFull = new TH2D("MissingClusFull","",200,-80,80,200,-80,80);
+	MissingClusFull->SetMarkerStyle(20);
+	MissingClusFull->SetMarkerColor(kBlue);
+	MissingClusFull->GetXaxis()->SetTitle("x (cm)");
+	MissingClusFull->GetYaxis()->SetTitle("y (cm)");
+	MissingClusFull->GetXaxis()->CenterTitle();
+	MissingClusFull->GetYaxis()->CenterTitle();
 
 
 	MissingClus = new TH2D("MissingClus","",200,-12,12,200,-12,12);
@@ -521,7 +558,9 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		siseedpy = siseed->get_py();
 		siseedpz = siseed->get_pz();
 		siseedq = siseed->get_charge();
-
+	
+		CosTheta = (tpcseedpx * siseedpx  + tpcseedpy  * siseedpy  + tpcseedpz  * siseedpz )/(sqrt(tpcseedpx  * tpcseedpx  + tpcseedpy  *tpcseedpy  + tpcseedpz  * tpcseedpz ) * sqrt(siseedpx  * siseedpx  + siseedpy  * siseedpy  + siseedpz  * siseedpz ));
+		 
 
 		//if(Crossing != 0 || SiSeedPt < 0.5) continue;  //Apply Cuts
 		
@@ -646,7 +685,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 				CylinderGeom_Mvtx* layergeom = dynamic_cast<CylinderGeom_Mvtx*>(geantGeom_MVTX->GetLayerGeom(layer));
 				auto surface = actsGeom->maps().getSiliconSurface(*cluskey);
 
-
+				
 				mvtxlaycount.push_back(layer);
 
 
@@ -712,6 +751,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 				SiClusHits->Fill(x,y);
 
+				FullClusHits->Fill(x,y);
 
 			}
 			//		std::cout << "missinglayer = " << missinglayer << std::endl;
@@ -762,6 +802,22 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 				ntpc++;
 				layer =  TrkrDefs::getLayer(*tpccluskey);
 				tpclaycount.push_back(layer);
+
+				TrkrCluster* cluster = clustermap->findCluster(*tpccluskey);
+				Acts::Vector3 global = geometry->getGlobalPosition(*tpccluskey, cluster);  
+
+				float x = global[0];
+				float y = global[1];
+				float z = global[2];
+
+
+
+				ClusPosX.push_back(x);
+				ClusPosY.push_back(y);
+				ClusPosZ.push_back(z);
+
+
+
 
 			}
 
@@ -841,6 +897,10 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 				
 				auto surface = actsGeom->maps().getSiliconSurface(hitsetkeyfired);
 
+				if(!surface){
+					std::cout << "No Surface for All, skip for now" << std::endl;
+					continue;			
+				}
 				double mvtxfiredchiploc[3] = {0,0,0};
 
 				layergeom->find_sensor_center(surface, actsGeom, mvtxfiredchiploc);
@@ -906,10 +966,6 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 			std::vector<double> world_inner_vec = {x_miss, y_miss, z_miss};
 			layergeom->get_sensor_indices_from_world_coords(world_inner_vec, missingstave, missingchip);
 
-			if(missingchip > 8){ 
-				nskipped++;
-				continue;
-			}
 
 			//	MvtxDefs * mvtxdef = new MvtxDefs();
 			//	auto missinghitsetkey = mvtxdef->GenHitSetKey(missinglayer, missingstave, missingchip, 0);
@@ -920,19 +976,44 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 			auto surface = actsGeom->maps().getSiliconSurface(missinghitsetkey);
 
-			double mvtxmissingchiploc[3] = {0,0,0};
 
-			layergeom->find_sensor_center(surface, actsGeom, mvtxmissingchiploc);
+			if(!surface){
+				std::cout << "No Surface for this Missing Chip, skip for now" << std::endl;
+				std::cout << "Missing Chip Info: " << "  Layer: " << missinglayer <<  "   missingstave = " << missingstave  << "   missingchip = " << missingchip << std::endl;
+				std::cout << "Missing Chip Coordinates: " << "  x = " << x_miss << "  y = " << y_miss << "  z = " << z_miss  << std::endl;
+				nskipped++;				
+				
+				layerindex = missinglayer; 
+				staveindex = -1;
+				chipindex = -1;
+		
 
-			layerindex = missinglayer; 
-			staveindex = missingstave;
-			chipindex = missingchip;
+				chipphi = 9999;
+				chipz = 9999;
 
-			chipphi = TMath::ATan2(mvtxmissingchiploc[1],mvtxmissingchiploc[0]);
-			chipz = mvtxmissingchiploc[2];
+				surfacegood = false;
+
+				continue;
+			}else{
+		
+				double mvtxmissingchiploc[3] = {0,0,0};
+
+				layergeom->find_sensor_center(surface, actsGeom, mvtxmissingchiploc);
+
+				layerindex = missinglayer; 
+				staveindex = missingstave;
+				chipindex = missingchip;
+
+				chipphi = TMath::ATan2(mvtxmissingchiploc[1],mvtxmissingchiploc[0]);
+				chipz = mvtxmissingchiploc[2];
+				surfacegood = true;
+
+			}
 
 			MissingChip->Fill();
+
 			MissingClus->Fill(x_miss,y_miss);
+			MissingClusFull->Fill(x_miss,y_miss);
 
 			MissingClus3D->Fill(z_miss,y_miss,x_miss);
 
@@ -956,12 +1037,16 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 		}
 
+
+		TotalClusSize = ClusPosX.size();
+
 		TotalTrack->Fill();
 
 
 
 		SiSeedSize = ClusPosX.size();
 		SiSeedAna->Fill();
+
 		ClusPosX.clear();
 		ClusPosY.clear();
 		ClusPosZ.clear();
@@ -1002,6 +1087,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 
 		SiClusHits->Draw("p");
+		MissingClus->Draw("pSAME");		
 		c->SaveAs("MVTX+INTT.png");
 
 	}

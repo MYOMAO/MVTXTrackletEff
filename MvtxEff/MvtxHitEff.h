@@ -43,17 +43,25 @@ class MvtxHitEff : public SubsysReco
   int Event;
   int TrackletID;
 // float SiSeedEta;
-//  float SiSeedPt;
+//
+//
+//float SiSeedPt;
+
+
+  int TotalClusSize;
 
   TH1D * MVTXClusSize;
   TH1D * INTTClusSize;
 
 
 
+
   TH2D * ClusHits;
   TH2D * SiClusHits;
- 
+  TH2D * FullClusHits;
+
   TH2D * MissingClus;
+  TH2D * MissingClusFull;
 
   TH3D * MissingClus3D;
   TH3D * ClusHits3D;
@@ -117,10 +125,10 @@ class MvtxHitEff : public SubsysReco
   int nmaps_uniqlay;
   int intt_uniqlay;
 
-  int mvtxclusmax = 4;
-  int inttclusmax = 10;
+  int mvtxclusmax = 10;
+  int inttclusmax = 4;
 
-	
+
   //Additional Parameters
 
 
@@ -181,7 +189,8 @@ class MvtxHitEff : public SubsysReco
   float siseedpz;
   float siseedq;
 
-
+	
+  bool surfacegood;
 
   //  std::vector<int> ClusIdVec; 
   std::vector<uint64_t> ClusKeyVec; 
