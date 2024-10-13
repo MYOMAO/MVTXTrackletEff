@@ -27,6 +27,7 @@ class MvtxHitEff : public SubsysReco
   int InitRun(PHCompositeNode* topNode) override;
   int process_event(PHCompositeNode* topNode) override;
   int EndRun();
+  void SetUseTPC(bool WithTPC);
 
   int End(PHCompositeNode *topNode) override;
   
@@ -189,7 +190,12 @@ class MvtxHitEff : public SubsysReco
   float siseedpz;
   float siseedq;
 
-	
+
+  float CosTheta;
+
+
+  bool UseTPC = true; //Default USE TPC
+
   bool surfacegood;
 
   //  std::vector<int> ClusIdVec; 

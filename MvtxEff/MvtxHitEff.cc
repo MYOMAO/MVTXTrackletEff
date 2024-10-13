@@ -51,12 +51,11 @@
 #include "TH1D.h"
 #include "TCanvas.h"
 #include "TStyle.h"
-TotalTrack->Scan(
-
 
 #include <limits>
 
 TH1D * NHitStat; 
+
 //____________________________________________________________________________..
 MvtxHitEff::MvtxHitEff(const std::string &name)
 	: SubsysReco(name)
@@ -70,12 +69,16 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	std::cout << "Additional Info + Silicon Surface Protection" << std::endl;
 	std::cout << "Include TPC Clusters for Demo -> Propered -> Uodated" << std::endl;
 	std::cout << "Improve Missing" << std::endl;
+	std::cout << "Fix Missing" << std::endl;
+	std::cout << "Include Si Fit Data" << std::endl;
+	std::cout << "Make Use TPC Method" << std::endl;
 
 	fout = new TFile("MVTXEffAna.root","RECREATE");
 	fout->cd();
 	Event = 0;
 	MissingChip = new TTree("MissingChip","MissingChip");
 	MissingChip->Branch("Event",&Event);	
+	MissingChip->Branch("CrossingID",&Crossing);		
 	MissingChip->Branch("TrackletID",&TrackletID);	
 	MissingChip->Branch("chisq",&chisq);	
 	MissingChip->Branch("ndf",&ndf);	
@@ -117,7 +120,7 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	MissingChip->Branch("chipphi",&chipphi);
 	MissingChip->Branch("chipz",&chipz);
 
-	
+
 	MissingChip->Branch("x",&x_miss);
 	MissingChip->Branch("y",&y_miss);
 	MissingChip->Branch("z",&z_miss);
@@ -141,6 +144,9 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	MissingChip->Branch("poormvtxclus",&poormvtxclus);	
 	MissingChip->Branch("poorinttclus",&poorinttclus);	
 
+
+
+
 	//Clus Info
 	MissingChip->Branch("TotalClusSize",&TotalClusSize);
 	MissingChip->Branch("ClusPosX",&ClusPosX);
@@ -152,6 +158,7 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 
 	TotalChip = new TTree("TotalChip","TotalChip");
 	TotalChip->Branch("Event",&Event);	
+	TotalChip->Branch("CrossingID",&Crossing);			
 	TotalChip->Branch("TrackletID",&TrackletID);	
 	TotalChip->Branch("chisq",&chisq);	
 	TotalChip->Branch("ndf",&ndf);	
@@ -185,6 +192,7 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 
 	TotalTrack = new TTree("TotalTrack","TotalTrack");
 	TotalTrack->Branch("Event",&Event);	
+	TotalTrack->Branch("CrossingID",&Crossing);				
 	TotalTrack->Branch("TrackletID",&TrackletID);	
 	TotalTrack->Branch("chisq",&chisq);	
 	TotalTrack->Branch("ndf",&ndf);	
@@ -229,13 +237,12 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 
 
 
+
 	//Clus Info
 	TotalTrack->Branch("TotalClusSize",&TotalClusSize);
 	TotalTrack->Branch("ClusPosX",&ClusPosX);
 	TotalTrack->Branch("ClusPosY",&ClusPosY);
 	TotalTrack->Branch("ClusPosZ",&ClusPosZ);
-
-
 	SiSeedAna = new TTree("SiSeedAna","SiSeedAna");
 	SiSeedAna->Branch("Event",&Event);
 	SiSeedAna->Branch("SeedID",&SeedID);
@@ -390,12 +397,19 @@ int MvtxHitEff::InitRun(PHCompositeNode *topNode)
 	return Fun4AllReturnCodes::EVENT_OK;
 }
 
+
+void MvtxHitEff::SetUseTPC(bool WithTPC){
+
+	UseTPC = WithTPC;
+}
+
 //____________________________________________________________________________..
 int MvtxHitEff::process_event(PHCompositeNode *topNode)
 {
-	std::cout << "Now processing - ZZ MvtxHitEff - use track map -> Find nskip -> Changed ZZ -> Vertex -> Updated 10/04 New -> More Print Out"  << std::endl; 	
+	std::cout << "Now processing - ZZ MvtxHitEff - use track map -> Find nskip -> Changed ZZ -> Vertex -> Updated 10/04 New -> More Print Out -> Add Use TPC Flag for Si Only Fit"  << std::endl; 	
 
 
+	std::cout << "Are We using TPC? " << UseTPC << std::endl;
 
 
 	//	topNode->print();
@@ -473,7 +487,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 	for (auto& iter : *_trackmap)
 	{   
 
-		
+
 		//Seed loop
 		//cout << itrack << " of " << _trackmap->size();
 		SvtxTrack* track = iter.second;
@@ -511,7 +525,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 
 
-		
+
 
 
 		if(vtxId != -1){
@@ -558,14 +572,14 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		siseedpy = siseed->get_py();
 		siseedpz = siseed->get_pz();
 		siseedq = siseed->get_charge();
-	
+
 		CosTheta = (tpcseedpx * siseedpx  + tpcseedpy  * siseedpy  + tpcseedpz  * siseedpz )/(sqrt(tpcseedpx  * tpcseedpx  + tpcseedpy  *tpcseedpy  + tpcseedpz  * tpcseedpz ) * sqrt(siseedpx  * siseedpx  + siseedpy  * siseedpy  + siseedpz  * siseedpz ));
-		 
+
 
 		//if(Crossing != 0 || SiSeedPt < 0.5) continue;  //Apply Cuts
-		
-		if(Crossing != 0) continue;  
-		
+
+		//if(Crossing != 0) continue;   //Do Reject Crossing for now
+
 		TrackletID = track->get_id();
 
 		//std::cout << "TotalTracklets = " << TotalTracklets << std::endl;
@@ -640,16 +654,16 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 				if (TrkrDefs::getTrkrId(*cluskey) == TrkrDefs::mvtxId){
 					MVTXClusSize->Fill(size);
 					if(size > mvtxclusmax){
-				//		goodclussize = false;
+						//		goodclussize = false;
 						poormvtxclus++;
 					}
-				
+
 				}
 
 				if (TrkrDefs::getTrkrId(*cluskey) == TrkrDefs::inttId){				
 					INTTClusSize->Fill(size);	
 					if(size > inttclusmax){
-				//		goodclussize = false;
+						//		goodclussize = false;
 						poorinttclus++;
 					}
 				}
@@ -660,7 +674,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 			}
 
 
-		//	std::cout << "Si - Pass 2" << std::endl;
+			//	std::cout << "Si - Pass 2" << std::endl;
 
 			if (TrkrDefs::getTrkrId(*cluskey) == TrkrDefs::mvtxId){
 
@@ -685,7 +699,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 				CylinderGeom_Mvtx* layergeom = dynamic_cast<CylinderGeom_Mvtx*>(geantGeom_MVTX->GetLayerGeom(layer));
 				auto surface = actsGeom->maps().getSiliconSurface(*cluskey);
 
-				
+
 				mvtxlaycount.push_back(layer);
 
 
@@ -716,7 +730,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 
 
-	//		std::cout << "Si - Pass 3" << std::endl;
+			//		std::cout << "Si - Pass 3" << std::endl;
 
 			if (TrkrDefs::getTrkrId(*cluskey) == TrkrDefs::inttId){
 				nintt++;
@@ -756,77 +770,78 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 			}
 			//		std::cout << "missinglayer = " << missinglayer << std::endl;
 
-	//		std::cout << "Si - Pass 4" << std::endl;
+			//		std::cout << "Si - Pass 4" << std::endl;
 
 		}
-	
+
 
 		//std::cout << "Now Looping TPC stuffs" << std::endl;
 
 
 		//TPC Seed Loop
-
-		TrackSeed* tpcseed = track->get_tpc_seed();		
-		
-
-		if(!tpcseed){
-
-			std::cout << "No TPC Seed" << std::endl;
-			continue;
-		}
+		if(UseTPC){
+			TrackSeed* tpcseed = track->get_tpc_seed();		
 
 
+			if(!tpcseed){
 
-		TrackSeed::ClusterKeyIter tpccluskeybegin = tpcseed->begin_cluster_keys();
-		TrackSeed::ClusterKeyIter tpccluskeyend = tpcseed->end_cluster_keys();
+				std::cout << "No TPC Seed" << std::endl;
+				continue;
+			}
 
 
 
-		tpcx = tpcseed->get_x();
-		tpcy = tpcseed->get_y();
-		tpcz = tpcseed->get_z();
-
-		tpcseedpt =  tpcseed->get_pt();
-		tpcseedeta =  tpcseed->get_eta();
-		tpcseedphi =  tpcseed->get_phi();
-		tpcseedpx =  tpcseed->get_px();
-		tpcseedpy =  tpcseed->get_py();
-		tpcseedpz =  tpcseed->get_pz();
-		tpcseedq =  tpcseed->get_charge();
-
-
-		for (TrackSeed::ClusterKeyIter tpccluskey = tpccluskeybegin; tpccluskey != tpccluskeyend; ++tpccluskey){ //looping through silicon clusters
-
-
-			if (TrkrDefs::getTrkrId(*tpccluskey) == TrkrDefs::tpcId){
-				ntpc++;
-				layer =  TrkrDefs::getLayer(*tpccluskey);
-				tpclaycount.push_back(layer);
-
-				TrkrCluster* cluster = clustermap->findCluster(*tpccluskey);
-				Acts::Vector3 global = geometry->getGlobalPosition(*tpccluskey, cluster);  
-
-				float x = global[0];
-				float y = global[1];
-				float z = global[2];
+			TrackSeed::ClusterKeyIter tpccluskeybegin = tpcseed->begin_cluster_keys();
+			TrackSeed::ClusterKeyIter tpccluskeyend = tpcseed->end_cluster_keys();
 
 
 
-				ClusPosX.push_back(x);
-				ClusPosY.push_back(y);
-				ClusPosZ.push_back(z);
+			tpcx = tpcseed->get_x();
+			tpcy = tpcseed->get_y();
+			tpcz = tpcseed->get_z();
+
+			tpcseedpt =  tpcseed->get_pt();
+			tpcseedeta =  tpcseed->get_eta();
+			tpcseedphi =  tpcseed->get_phi();
+			tpcseedpx =  tpcseed->get_px();
+			tpcseedpy =  tpcseed->get_py();
+			tpcseedpz =  tpcseed->get_pz();
+			tpcseedq =  tpcseed->get_charge();
 
 
+			for (TrackSeed::ClusterKeyIter tpccluskey = tpccluskeybegin; tpccluskey != tpccluskeyend; ++tpccluskey){ //looping through silicon clusters
+
+
+				if (TrkrDefs::getTrkrId(*tpccluskey) == TrkrDefs::tpcId){
+					ntpc++;
+					layer =  TrkrDefs::getLayer(*tpccluskey);
+					tpclaycount.push_back(layer);
+
+					TrkrCluster* cluster = clustermap->findCluster(*tpccluskey);
+					Acts::Vector3 global = geometry->getGlobalPosition(*tpccluskey, cluster);  
+
+					float x = global[0];
+					float y = global[1];
+					float z = global[2];
+
+
+
+					ClusPosX.push_back(x);
+					ClusPosY.push_back(y);
+					ClusPosZ.push_back(z);
+
+
+
+
+				}
 
 
 			}
 
 
+
+
 		}
-
-
-		
-
 
 
 		//Count MVTX, INTT, and TPC Unique Layers//
@@ -844,7 +859,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		ntpclayer = std::distance(tpclaycount.begin(), tpcuniq);
 
 
-		
+
 
 		//	std::cout << "nmaps = " << nmaps << "   TotalTracklet = " <<  TotalTracklets << std::endl;
 		NHitStat->Fill(nmaps);
@@ -858,7 +873,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 
 
-	//	if(nmaps== 2 && nintt == 2){
+		//	if(nmaps== 2 && nintt == 2){
 		if(nmaps== 2){
 
 
@@ -877,9 +892,9 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		}
 
 
-//		if(nmaps > 1 && nintt == 2){
+		//		if(nmaps > 1 && nintt == 2){
 		CylinderGeom_Mvtx* layergeom = NULL;
-	
+
 		if(nmaps > 1){
 
 			int mvtxclusize = seedlayers.size();
@@ -891,10 +906,10 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 				chipfired = seedchip[i];
 
 				layergeom = dynamic_cast<CylinderGeom_Mvtx*>(geantGeom_MVTX->GetLayerGeom(layerfired));
-				
+
 
 				auto hitsetkeyfired = MvtxDefs::genHitSetKey(layerfired, stavefired, chipfired, 0);
-				
+
 				auto surface = actsGeom->maps().getSiliconSurface(hitsetkeyfired);
 
 				if(!surface){
@@ -924,7 +939,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		if(missinglayer != -1) MissingOneLayer = true;
 
 		//	MissingOneLayer = false;
-	//	std::cout << "Missing layer here: " << MissingOneLayer << std::endl;
+		//	std::cout << "Missing layer here: " << MissingOneLayer << std::endl;
 		if(MissingOneLayer)
 		{
 			TwoClusTracklets++;
@@ -982,20 +997,20 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 				std::cout << "Missing Chip Info: " << "  Layer: " << missinglayer <<  "   missingstave = " << missingstave  << "   missingchip = " << missingchip << std::endl;
 				std::cout << "Missing Chip Coordinates: " << "  x = " << x_miss << "  y = " << y_miss << "  z = " << z_miss  << std::endl;
 				nskipped++;				
-				
+
 				layerindex = missinglayer; 
 				staveindex = -1;
 				chipindex = -1;
-		
+
 
 				chipphi = 9999;
 				chipz = 9999;
 
 				surfacegood = false;
 
-				continue;
+				//continue;
 			}else{
-		
+
 				double mvtxmissingchiploc[3] = {0,0,0};
 
 				layergeom->find_sensor_center(surface, actsGeom, mvtxmissingchiploc);
@@ -1101,34 +1116,34 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 	std::cout << "OK DONE" << std::endl; 	
 
 	return Fun4AllReturnCodes::EVENT_OK;
-}
+	}
 
-//____________________________________________________________________________..
-int MvtxHitEff::EndRun()
-{
+	//____________________________________________________________________________..
+	int MvtxHitEff::EndRun()
+	{
 
-	return Fun4AllReturnCodes::EVENT_OK;
-}
+		return Fun4AllReturnCodes::EVENT_OK;
+	}
 
-//____________________________________________________________________________..
-int MvtxHitEff::End(PHCompositeNode * /*unused*/) { 
+	//____________________________________________________________________________..
+	int MvtxHitEff::End(PHCompositeNode * /*unused*/) { 
 
-	fout->cd();
-	TotalTrack->Write();
+		fout->cd();
+		TotalTrack->Write();
 
-	TotalChip->Write();
-	MissingChip->Write();
-	NHitStat->Write();
-	SiSeedAna->Write();
-	VertexTree->Write();
-	MVTXClusSize->Write();
-	INTTClusSize->Write();
+		TotalChip->Write();
+		MissingChip->Write();
+		NHitStat->Write();
+		SiSeedAna->Write();
+		VertexTree->Write();
+		MVTXClusSize->Write();
+		INTTClusSize->Write();
 
-	fout->Close();
+		fout->Close();
 
-	std::cout  << "Total Tracklets: " << TotalTracklets << "   TwoClusTracklets: " << TwoClusTracklets << std::endl;
-	return Fun4AllReturnCodes::EVENT_OK; 
-}
+		std::cout  << "Total Tracklets: " << TotalTracklets << "   TwoClusTracklets: " << TwoClusTracklets << std::endl;
+		return Fun4AllReturnCodes::EVENT_OK; 
+	}
 
 
 
