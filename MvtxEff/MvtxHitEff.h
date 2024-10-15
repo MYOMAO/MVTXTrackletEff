@@ -99,6 +99,21 @@ class MvtxHitEff : public SubsysReco
   std::vector<float> ClusPosY;
   std::vector<float> ClusPosZ;
 
+
+  std::vector<int> MVTXClusArea;
+  std::vector<float> MVTXClusX;
+  std::vector<float> MVTXClusY;  
+  std::vector<float> MVTXClusZ;
+
+  std::vector<int> MVTXClusLayer;
+  std::vector<int> MVTXClusStave;  
+  std::vector<int> MVTXClusChip;
+
+  std::vector<float> MVTXChipZ;
+  std::vector<float> MVTXChipPhi;
+
+
+
   std::vector<int> INTTTimeBucketVec;
 
   int Ntracks;
