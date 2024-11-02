@@ -72,20 +72,118 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	std::cout << "Fix Missing" << std::endl;
 	std::cout << "Include Si Fit Data" << std::endl;
 	std::cout << "Make Use TPC Method" << std::endl;
-	std::cout << "Make 1 Single Ntuple" << std::endl;
-	std::cout << "Keep 1 Fill Only" << std::endl;
-	std::cout << "Updated with Unuse" << std::endl;
-	std::cout << "Vertex Modi" << std::endl;
 
-	fout = new TFile("MVTXEffAnaNew.root","RECREATE");
+	fout = new TFile("MVTXEffAna.root","RECREATE");
 	fout->cd();
 	Event = 0;
+	MissingChip = new TTree("MissingChip","MissingChip");
+	MissingChip->Branch("Event",&Event);	
+	MissingChip->Branch("CrossingID",&Crossing);		
+	MissingChip->Branch("TrackletID",&TrackletID);	
+	MissingChip->Branch("chisq",&chisq);	
+	MissingChip->Branch("ndf",&ndf);	
+	MissingChip->Branch("trackpt",&trackpt);	
+	MissingChip->Branch("tracketa",&tracketa);	
+	MissingChip->Branch("trackphi",&trackphi);	
+	MissingChip->Branch("trackpx",&trackpx);	
+	MissingChip->Branch("trackpy",&trackpy);	
+	MissingChip->Branch("trackpz",&trackpz);	
+	MissingChip->Branch("trackq",&trackq);	
+
+
+	MissingChip->Branch("tpcseedpt",&tpcseedpt);	
+	MissingChip->Branch("tpcseedeta",&tpcseedeta);	
+	MissingChip->Branch("tpcseedphi",&tpcseedphi);	
+	MissingChip->Branch("tpcseedpx",&tpcseedpx);	
+	MissingChip->Branch("tpcseedpy",&tpcseedpy);	
+	MissingChip->Branch("tpcseedpz",&tpcseedpz);	
+	MissingChip->Branch("tpcseedq",&tpcseedq);	
+
+	MissingChip->Branch("siseedpt",&siseedpt);	
+	MissingChip->Branch("siseedeta",&siseedeta);	
+	MissingChip->Branch("siseedphi",&siseedphi);	
+	MissingChip->Branch("siseedpx",&siseedpx);	
+	MissingChip->Branch("siseedpy",&siseedpy);	
+	MissingChip->Branch("siseedpz",&siseedpz);	
+	MissingChip->Branch("siseedq",&siseedq);	
+	MissingChip->Branch("CosTheta",&CosTheta);	
+
+
+	//Missing Info//
+
+	MissingChip->Branch("surfacegood",&surfacegood);	
+
+	MissingChip->Branch("layerindex",&layerindex);
+	MissingChip->Branch("staveindex",&staveindex);
+	MissingChip->Branch("chipindex",&chipindex);
+
+	MissingChip->Branch("chipphi",&chipphi);
+	MissingChip->Branch("chipz",&chipz);
+
+
+	MissingChip->Branch("x",&x_miss);
+	MissingChip->Branch("y",&y_miss);
+	MissingChip->Branch("z",&z_miss);
+
+	MissingChip->Branch("six",&six);
+	MissingChip->Branch("siy",&siy);
+	MissingChip->Branch("siz",&siz);
+
+	MissingChip->Branch("tpcx",&tpcx);
+	MissingChip->Branch("tpcy",&tpcy);
+	MissingChip->Branch("tpcz",&tpcz);
+
+	MissingChip->Branch("nmaps",&nmaps);	
+	MissingChip->Branch("nintt",&nintt);	
+	MissingChip->Branch("ntpc",&ntpc);	
+
+
+	MissingChip->Branch("nmapslayer",&nmapslayer);	
+	MissingChip->Branch("ninttlayer",&ninttlayer);	
+	MissingChip->Branch("ntpclayer",&ntpclayer);	
+	MissingChip->Branch("poormvtxclus",&poormvtxclus);	
+	MissingChip->Branch("poorinttclus",&poorinttclus);	
 
 
 
 
+	//Clus Info
+	MissingChip->Branch("TotalClusSize",&TotalClusSize);
+	MissingChip->Branch("ClusPosX",&ClusPosX);
+	MissingChip->Branch("ClusPosY",&ClusPosY);
+	MissingChip->Branch("ClusPosZ",&ClusPosZ);
 
 
+
+
+	TotalChip = new TTree("TotalChip","TotalChip");
+	TotalChip->Branch("Event",&Event);	
+	TotalChip->Branch("CrossingID",&Crossing);			
+	TotalChip->Branch("TrackletID",&TrackletID);	
+	TotalChip->Branch("chisq",&chisq);	
+	TotalChip->Branch("ndf",&ndf);	
+	TotalChip->Branch("layerfired",&layerfired);
+	TotalChip->Branch("stavefired",&stavefired);
+	TotalChip->Branch("chipfired",&chipfired);
+	TotalChip->Branch("chipphifired",&chipphifired);
+	TotalChip->Branch("chipzfired",&chipzfired);
+
+
+
+	TotalChip->Branch("six",&six);
+	TotalChip->Branch("siy",&siy);
+	TotalChip->Branch("siz",&siz);
+	TotalChip->Branch("tpcx",&tpcx);
+	TotalChip->Branch("tpcy",&tpcy);
+	TotalChip->Branch("tpcz",&tpcz);
+	TotalChip->Branch("nmaps",&nmaps);	
+	TotalChip->Branch("nintt",&nintt);	
+	TotalChip->Branch("ntpc",&ntpc);	
+	TotalChip->Branch("nmapslayer",&nmapslayer);	
+	TotalChip->Branch("ninttlayer",&ninttlayer);	
+	TotalChip->Branch("ntpclayer",&ntpclayer);	
+	TotalChip->Branch("poormvtxclus",&poormvtxclus);	
+	TotalChip->Branch("poorinttclus",&poorinttclus);	
 
 	//Enable Clusters
 
@@ -145,36 +243,143 @@ MvtxHitEff::MvtxHitEff(const std::string &name)
 	TotalTrack->Branch("ClusPosX",&ClusPosX);
 	TotalTrack->Branch("ClusPosY",&ClusPosY);
 	TotalTrack->Branch("ClusPosZ",&ClusPosZ);
+	SiSeedAna = new TTree("SiSeedAna","SiSeedAna");
+	SiSeedAna->Branch("Event",&Event);
+	SiSeedAna->Branch("SeedID",&SeedID);
+
+	SiSeedAna->Branch("TotalClus",&TotalClus);
+	SiSeedAna->Branch("TotalClusAssoc",&TotalClusAssoc);
+	SiSeedAna->Branch("siseedeta",&siseedeta);
+	SiSeedAna->Branch("siseedpt",&siseedpt);
+
+	SiSeedAna->Branch("nmaps",&nmaps);
+	SiSeedAna->Branch("nintt",&nintt);
+	SiSeedAna->Branch("chisq",&chisq);	
+	SiSeedAna->Branch("ndf",&ndf);	
+
+	SiSeedAna->Branch("vtxId",&vtxId);	
+	SiSeedAna->Branch("vtxX",&vtxX);	
+	SiSeedAna->Branch("vtxY",&vtxY);	
+	SiSeedAna->Branch("vtxZ",&vtxZ);	
+
+	SiSeedAna->Branch("SiSeedSize",&SiSeedSize);
+
+	SiSeedAna->Branch("ClusPosX",&ClusPosX);
+	SiSeedAna->Branch("ClusPosY",&ClusPosY);
+	SiSeedAna->Branch("ClusPosZ",&ClusPosZ);
+	SiSeedAna->Branch("INTTTimeBucket",&INTTTimeBucketVec);
+
+	SiSeedAna->Branch("Crossing",&Crossing);
+	SiSeedAna->Branch("ClusKeyVec",&ClusKeyVec);
+	//SiSeedAna->Branch("ClusIdVec",&ClusIdVec);
 
 
-	TotalTrack->Branch("MVTXClusArea",&MVTXClusArea);
-	TotalTrack->Branch("MVTXClusX",&MVTXClusX);
-	TotalTrack->Branch("MVTXClusY",&MVTXClusY);
-	TotalTrack->Branch("MVTXClusZ",&MVTXClusZ);
+	VertexTree = new TTree("VertexTree","VertexTree");
+	VertexTree->Branch("Event",&Event);
+	VertexTree->Branch("VertexCrossing",&VertexCrossing);
+	VertexTree->Branch("Ntracks",&Ntracks);
+	VertexTree->Branch("m_nvertices",&m_nvertices);
 
-	TotalTrack->Branch("MVTXClusLayer",&MVTXClusLayer);
-	TotalTrack->Branch("MVTXClusStave",&MVTXClusStave);
-	TotalTrack->Branch("MVTXClusChip",&MVTXClusChip);
-
-	TotalTrack->Branch("MVTXChipZ",&MVTXChipZ);
-	TotalTrack->Branch("MVTXChipPhi",&MVTXChipPhi);
+	VertexTree->Branch("Vx",&Vx);
+	VertexTree->Branch("Vy",&Vy);
+	VertexTree->Branch("Vz",&Vz);
 
 
 
-	TotalTrack->Branch("x_miss",&x_miss);
-	TotalTrack->Branch("y_miss",&y_miss);
-	TotalTrack->Branch("z_miss",&z_miss);
-
-	TotalTrack->Branch("surfacegood",&surfacegood);	
-	TotalTrack->Branch("layerindex_miss",&layerindex);
-	TotalTrack->Branch("staveindex_miss",&staveindex);
-	TotalTrack->Branch("chipindex_miss",&chipindex);
-
-	TotalTrack->Branch("chipphi_miss",&chipphi);
-	TotalTrack->Branch("chipz_miss",&chipz);
+	MVTXClusSize = new TH1D("MVTXClusSize","",100,-0.5,100);
+	MVTXClusSize->GetXaxis()->SetTitle("MVTX Cluster Size Associated to Silicon Tracklets");
+	MVTXClusSize->GetYaxis()->SetTitle("Number of Clusters");
+	MVTXClusSize->GetXaxis()->CenterTitle();
+	MVTXClusSize->GetYaxis()->CenterTitle();
 
 
-	//
+	INTTClusSize = new TH1D("INTTClusSize","",100,-0.5,100);
+	INTTClusSize->GetXaxis()->SetTitle("INTT Cluster Size Associated to Silicon Tracklets");
+	INTTClusSize->GetYaxis()->SetTitle("Number of Clusters");
+	INTTClusSize->GetXaxis()->CenterTitle();
+	INTTClusSize->GetYaxis()->CenterTitle();
+
+
+
+	ClusHits = new TH2D("ClusHits","",200,-12,12,200,-12,12);
+	ClusHits->SetMarkerStyle(20);
+	ClusHits->SetMarkerColor(kRed);
+	ClusHits->GetXaxis()->SetTitle("x (cm)");
+	ClusHits->GetYaxis()->SetTitle("y (cm)");
+	ClusHits->GetXaxis()->CenterTitle();
+	ClusHits->GetYaxis()->CenterTitle();
+
+
+
+
+	ClusHits3D = new TH3D("ClusHits3D","",100,-30,30,200,-12,12,200,-12,12);
+
+
+	ClusHits3D->SetMarkerStyle(20);
+	ClusHits3D->SetMarkerColor(kRed);
+	ClusHits3D->GetXaxis()->SetTitle("x (cm)");
+	ClusHits3D->GetYaxis()->SetTitle("y (cm)");
+	ClusHits3D->GetZaxis()->SetTitle("z (cm)");
+
+	ClusHits3D->GetXaxis()->CenterTitle();
+	ClusHits3D->GetYaxis()->CenterTitle();
+	ClusHits3D->GetZaxis()->CenterTitle();
+
+
+	SiClusHits = new TH2D("ClusHits","",200,-12,12,200,-12,12);
+
+	SiClusHits->SetMarkerStyle(20);
+	SiClusHits->SetMarkerColor(kRed);
+	SiClusHits->GetXaxis()->SetTitle("x (cm)");
+	SiClusHits->GetYaxis()->SetTitle("y (cm)");
+	SiClusHits->GetXaxis()->CenterTitle();
+	SiClusHits->GetYaxis()->CenterTitle();
+
+
+
+	FullClusHits = new TH2D("ClusHits","",200,-80,80,200,-80,80);
+	FullClusHits->SetMarkerStyle(20);
+	FullClusHits->SetMarkerColor(kRed);
+	FullClusHits->GetXaxis()->SetTitle("x (cm)");
+	FullClusHits->GetYaxis()->SetTitle("y (cm)");
+	FullClusHits->GetXaxis()->CenterTitle();
+	FullClusHits->GetYaxis()->CenterTitle();
+
+	MissingClusFull = new TH2D("MissingClusFull","",200,-80,80,200,-80,80);
+	MissingClusFull->SetMarkerStyle(20);
+	MissingClusFull->SetMarkerColor(kBlue);
+	MissingClusFull->GetXaxis()->SetTitle("x (cm)");
+	MissingClusFull->GetYaxis()->SetTitle("y (cm)");
+	MissingClusFull->GetXaxis()->CenterTitle();
+	MissingClusFull->GetYaxis()->CenterTitle();
+
+
+	MissingClus = new TH2D("MissingClus","",200,-12,12,200,-12,12);
+	MissingClus->SetMarkerStyle(20);
+	MissingClus->SetMarkerColor(kBlue);
+	MissingClus->GetXaxis()->SetTitle("x (cm)");
+	MissingClus->GetYaxis()->SetTitle("y (cm)");
+	MissingClus->GetXaxis()->CenterTitle();
+	MissingClus->GetYaxis()->CenterTitle();
+
+
+	MissingClus3D = new TH3D("MissingClus3D","",100,-30,30,200,-12,12,200,-12,12);
+	MissingClus3D->SetMarkerStyle(20);
+	MissingClus3D->SetMarkerColor(kBlue);
+	MissingClus3D->GetXaxis()->SetTitle("x (cm)");
+	MissingClus3D->GetYaxis()->SetTitle("y (cm)");
+	MissingClus3D->GetYaxis()->SetTitle("z (cm)");
+
+	MissingClus3D->GetXaxis()->CenterTitle();
+	MissingClus3D->GetYaxis()->CenterTitle();
+
+
+	TotalTracklets = 0;
+	TwoClusTracklets = 0;
+
+	NHitStat = new TH1D("NHitStat","",6,-0.5,5.5);
+	NHitStat->GetXaxis()->SetTitle("N MVTX Clusters");
+	NHitStat->GetYaxis()->SetTitle("Number of Tracklets");
 
 
 }
@@ -198,8 +403,6 @@ void MvtxHitEff::SetUseTPC(bool WithTPC){
 	UseTPC = WithTPC;
 }
 
-
-
 //____________________________________________________________________________..
 int MvtxHitEff::process_event(PHCompositeNode *topNode)
 {
@@ -220,22 +423,13 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 	auto _vertexmap = findNode::getClass<SvtxVertexMap>(topNode, "SvtxVertexMap");
 
 
+
 	if (!_trackmap)
 	{
 		std::cout << " SvtxTrackMap node not found on node tree"   <<  std::endl;
 		return Fun4AllReturnCodes::ABORTEVENT;
 
 	}
-
-
-	if (!_vertexmap)
-	{
-		std::cout << " SvtxVertexkMap node not found on node tree"   <<  std::endl;
-		//	return Fun4AllReturnCodes::ABORTEVENT;
-
-	}
-
-
 
 	TotalClus = 0;
 	TotalClusAssoc = 0;
@@ -275,14 +469,9 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 	std::vector<float> EvtMissingY;
 	std::vector<float> EvtMissingZ;
 
-	if(_vertexmap){
-		m_nvertices = _vertexmap->size();
-		std::cout << "m_nvertices = " << m_nvertices << std::endl;
-	}else{
+	m_nvertices = _vertexmap->size();
 
-		std::cout << "No Vertex Map -> Not Use it then" << std::endl;
-	}
-
+	std::cout << "m_nvertices = " << m_nvertices << std::endl;
 	/*
 	   for (const auto& [key, vertex] : *_vertexmap)
 	   {
@@ -326,33 +515,30 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 
 
-		if(_vertexmap){
+		vtxId = track->get_vertex_id();
 
 
-			vtxId = track->get_vertex_id();
+		SvtxVertex * svtxVertex = NULL;
+		svtxVertex = _vertexmap->find(vtxId)->second;
+
+		//std::cout << "OK -> Before Pass 2" << "   Vertex Id - " << vtxId << std::endl;
 
 
-			SvtxVertex * svtxVertex = NULL;
-			svtxVertex = _vertexmap->find(vtxId)->second;
 
 
-			if(vtxId != -1){
 
-				vtxX =  svtxVertex->get_x();
-				vtxY =  svtxVertex->get_y();
-				vtxZ =  svtxVertex->get_z();
 
-			}else{
+		if(vtxId != -1){
 
-				//std::cout << "No vertex, bad " << std::endl;
+			vtxX =  svtxVertex->get_x();
+			vtxY =  svtxVertex->get_y();
+			vtxZ =  svtxVertex->get_z();
 
-			}
+		}else{
+
+			//std::cout << "No vertex, bad " << std::endl;
 
 		}
-		//std::cout << "OK -> Before Pass 2" << "   Vertex Id - " << vtxId << std::endl;
-	
-		//Note that we do not use any vertex info for now
-
 
 		TrackSeed* siseed = track->get_silicon_seed();
 
@@ -454,19 +640,19 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 			if (TrkrDefs::getTrkrId(*cluskey) == TrkrDefs::mvtxId || TrkrDefs::getTrkrId(*cluskey) == TrkrDefs::inttId){
 
 				TrkrCluster* cluster = clustermap->findCluster(*cluskey);
-				//	Acts::Vector3 global = geometry->getGlobalPosition(*cluskey, cluster);  
-				/*
-				   float x = global[0];
-				   float y = global[1];
-				   float z = global[2];
-				   */
-				//	ClusHits->Fill(x,y);
-				//	ClusHits3D->Fill(z,y,x);
+				Acts::Vector3 global = geometry->getGlobalPosition(*cluskey, cluster);  
+
+				float x = global[0];
+				float y = global[1];
+				float z = global[2];
+
+				ClusHits->Fill(x,y);
+				ClusHits3D->Fill(z,y,x);
 
 				int size = cluster->getSize();
 
 				if (TrkrDefs::getTrkrId(*cluskey) == TrkrDefs::mvtxId){
-					//	MVTXClusSize->Fill(size);
+					MVTXClusSize->Fill(size);
 					if(size > mvtxclusmax){
 						//		goodclussize = false;
 						poormvtxclus++;
@@ -475,7 +661,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 				}
 
 				if (TrkrDefs::getTrkrId(*cluskey) == TrkrDefs::inttId){				
-					//		INTTClusSize->Fill(size);	
+					INTTClusSize->Fill(size);	
 					if(size > inttclusmax){
 						//		goodclussize = false;
 						poorinttclus++;
@@ -505,7 +691,6 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 
 
-
 				nmaps++;
 				seedlayers.push_back(layer);
 				seedstave.push_back(stave);
@@ -523,26 +708,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 				float z = global[2];
 
 
-				MVTXClusArea.push_back(cluster->getSize());
-				MVTXClusX.push_back(x);
-				MVTXClusY.push_back(y);
-				MVTXClusZ.push_back(z);
 
-				MVTXClusLayer.push_back(layer);
-				MVTXClusStave.push_back(stave);
-				MVTXClusChip.push_back(chip);
-
-				double mvtxfiredchiploc[3] = {0,0,0};
-
-				layergeom->find_sensor_center(surface, actsGeom, mvtxfiredchiploc);
-
-
-				float chipphi_temp = TMath::ATan2(mvtxfiredchiploc[1],mvtxfiredchiploc[0]);
-				float chipz_temp = mvtxfiredchiploc[2];
-
-
-				MVTXChipPhi.push_back(chipphi_temp);
-				MVTXChipZ.push_back(chipz_temp);
 
 				seedx.push_back(x);
 				seedy.push_back(y);
@@ -597,12 +763,9 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 				ClusPosY.push_back(y);
 				ClusPosZ.push_back(z);
 
+				SiClusHits->Fill(x,y);
 
-
-
-				//	SiClusHits->Fill(x,y);
-
-				//	FullClusHits->Fill(x,y);
+				FullClusHits->Fill(x,y);
 
 			}
 			//		std::cout << "missinglayer = " << missinglayer << std::endl;
@@ -699,7 +862,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 
 		//	std::cout << "nmaps = " << nmaps << "   TotalTracklet = " <<  TotalTracklets << std::endl;
-		//	NHitStat->Fill(nmaps);
+		NHitStat->Fill(nmaps);
 
 
 
@@ -760,7 +923,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 				chipphifired = TMath::ATan2(mvtxfiredchiploc[1],mvtxfiredchiploc[0]);
 				chipzfired = mvtxfiredchiploc[2];
 
-				//		TotalChip->Fill();
+				TotalChip->Fill();
 			}
 
 
@@ -860,14 +1023,14 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 				chipz = mvtxmissingchiploc[2];
 				surfacegood = true;
 
-
 			}
-			//	MissingChip->Fill();
 
-			//	MissingClus->Fill(x_miss,y_miss);
-			//	MissingClusFull->Fill(x_miss,y_miss);
+			MissingChip->Fill();
 
-			//	MissingClus3D->Fill(z_miss,y_miss,x_miss);
+			MissingClus->Fill(x_miss,y_miss);
+			MissingClusFull->Fill(x_miss,y_miss);
+
+			MissingClus3D->Fill(z_miss,y_miss,x_miss);
 
 
 
@@ -885,33 +1048,9 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 			chipphifired = chipphi;
 
 
-			//	TotalChip->Fill();
-
-		}else{
-
-			//Set Unused
-
-
-
-			x_miss = -1;
-			y_miss = -1; 
-			z_miss = -1; 
-
-			layerindex = -1; 
-			staveindex = -1;
-			chipindex = -1;
-
-			chipphi = -1;
-			chipz = -1;
-			surfacegood = false;
-
-
+			TotalChip->Fill();
 
 		}
-
-
-
-
 
 
 		TotalClusSize = ClusPosX.size();
@@ -921,7 +1060,7 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 
 		SiSeedSize = ClusPosX.size();
-		//		SiSeedAna->Fill();
+		SiSeedAna->Fill();
 
 		ClusPosX.clear();
 		ClusPosY.clear();
@@ -929,64 +1068,50 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 		INTTTimeBucketVec.clear();
 		//++itrack;
 
-		MVTXClusArea.clear();
-		MVTXClusX.clear();
-		MVTXClusY.clear();
-		MVTXClusZ.clear();
-
-		MVTXClusLayer.clear();
-		MVTXClusStave.clear();
-		MVTXClusChip.clear();
-
-		MVTXChipZ.clear();
-		MVTXChipPhi.clear();
-
 
 	}
 
 	//}
 
-	/*
-	   if(Event == 10){
+
+	if(Event == 10){
 
 
 
 
-	   gStyle->SetOptStat(0);
-	   TCanvas * c = new TCanvas("c","c",600,600);
-	   c->cd();
+		gStyle->SetOptStat(0);
+		TCanvas * c = new TCanvas("c","c",600,600);
+		c->cd();
 
 
 
 
-	   ClusHits->Draw("p");
-	   MissingClus->Draw("pSAME");
+		ClusHits->Draw("p");
+		MissingClus->Draw("pSAME");
 
 
-	   c->SaveAs("EvtDisplay.png");
+		c->SaveAs("EvtDisplay.png");
 
 
 
-	   ClusHits3D->Draw("p");
-	   MissingClus3D->Draw("pSAME");
+		ClusHits3D->Draw("p");
+		MissingClus3D->Draw("pSAME");
 
 
-	   c->SaveAs("EvtDisplay3D.png");
+		c->SaveAs("EvtDisplay3D.png");
 
 
-	   SiClusHits->Draw("p");
-	   MissingClus->Draw("pSAME");		
-	   c->SaveAs("MVTX+INTT.png");
+		SiClusHits->Draw("p");
+		MissingClus->Draw("pSAME");		
+		c->SaveAs("MVTX+INTT.png");
 
-	   }
+	}
 
 
-	   Event++;
-
-	   ClusHits->Reset();
-	   MissingClus->Reset();
-	   */
 	Event++;
+
+	ClusHits->Reset();
+	MissingClus->Reset();
 
 	std::cout << "OK DONE" << std::endl; 	
 
@@ -1005,15 +1130,15 @@ int MvtxHitEff::process_event(PHCompositeNode *topNode)
 
 		fout->cd();
 		TotalTrack->Write();
-		/*
-		   TotalChip->Write();
-		   MissingChip->Write();
-		   NHitStat->Write();
-		   SiSeedAna->Write();
-		   VertexTree->Write();
-		   MVTXClusSize->Write();
-		   INTTClusSize->Write();
-		   */
+
+		TotalChip->Write();
+		MissingChip->Write();
+		NHitStat->Write();
+		SiSeedAna->Write();
+		VertexTree->Write();
+		MVTXClusSize->Write();
+		INTTClusSize->Write();
+
 		fout->Close();
 
 		std::cout  << "Total Tracklets: " << TotalTracklets << "   TwoClusTracklets: " << TwoClusTracklets << std::endl;
